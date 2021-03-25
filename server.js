@@ -1,5 +1,17 @@
 require('dotenv').config()
+
 const tmi = require('tmi.js')
+
+const regexpCommand = new RegExp(/^!([a-zA-Z0-9]+)(?:\W+)?(.*)?/);
+
+const commands = {
+    name: {
+        response: 'Guilherme'
+    },
+    upvote:{
+        response: () => `User ${user} was just upvoted`
+    }
+}
 
 const client = new tmi.Client({
     connection: {
@@ -15,6 +27,15 @@ const client = new tmi.Client({
 client.connect();
 
 client.on('message', (channel, tags, message, self) => {
-    // "Alca: Hello, World!"
+    const isNotBot = tags.username.toLowerCase() !== process.env.TWITCH_BOT_USERNANE
+
+    if (!isNotBot) return
+
+    const [raw, command, argument] = message.match(regexpCommand);
+   
+    if (command) {
+        client.say(channel, `Command ${command} found with argument ${argument}`)
+    }
+
     console.log(`${tags['display-name']}: ${message}`);
 })
