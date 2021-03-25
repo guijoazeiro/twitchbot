@@ -8,8 +8,8 @@ const commands = {
     name: {
         response: 'Guilherme'
     },
-    upvote:{
-        response: () => `User ${user} was just upvoted`
+    upvote: {
+        response: (user) => `Successfully upvoted ${user}`
     }
 }
 
@@ -32,10 +32,14 @@ client.on('message', (channel, tags, message, self) => {
     if (!isNotBot) return
 
     const [raw, command, argument] = message.match(regexpCommand);
-   
-    if (command) {
-        client.say(channel, `Command ${command} found with argument ${argument}`)
-    }
 
-    console.log(`${tags['display-name']}: ${message}`);
+    const { response } = commands[command] || {};
+
+    if (typeof response === 'function') {
+        client.say(channel, response(tags.username))
+    } else if (typeof response === 'string') {
+        client.say(channel, response);
+    }
+   
+    console.log(`${tags['display-name']}: ${message}`)
 })
